@@ -3,7 +3,7 @@ import requests
 
 st.title("Supplier Selection Optimisation GPT")
 
-uploaded_file = st.file_uploader("Upload your supplier Excel file", type=["csv"])
+uploaded_file = st.file_uploader("Upload your supplier Excel file", type=["csv", "xlsx"])
 
 if uploaded_file:
     if st.button('Solve Optimisation'):
