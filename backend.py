@@ -1,16 +1,25 @@
-from fastapi import FastAPI, File, UploadFile
-import pandas as pd
+from fastapi import FastAPI
+from pydantic import BaseModel
+from typing import List
 
 app = FastAPI()
 
-@app.post("/solve/")
-async def solve(file: UploadFile = File(...)):
-    try:
-        df = pd.read_csv(file.file)
-        optimal_supplier = df.loc[df['Cost'].idxmin(), 'Supplier']
+class Supplier(BaseModel):
+    Supplier: str
+    Cost: float
+    Quality: float
+    DeliveryTime: int
+
+class SupplierRequest(BaseModel):
+    suppliers: List[Supplier]
+    criteria: str
+
+@app.post("/solve-json/")
+def solve_supplier(request: SupplierRequest):
+    if request.criteria == "minimum cost":
+        optimal = min(request.suppliers, key=lambda x: x.Cost)
         return {
-            "optimal_supplier": optimal_supplier,
-            "message": f"Optimal supplier selected based on minimal cost is {optimal_supplier}"
+            "optimal_supplier": optimal.Supplier,
+            "message": f"{optimal.Supplier} selected based on minimum cost (${optimal.Cost})."
         }
-    except Exception as e:
-        return {"error": str(e)}
+    return {"message": "Unsupported criteria."}
