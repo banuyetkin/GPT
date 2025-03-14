@@ -8,7 +8,9 @@ uploaded_file = st.file_uploader("Upload your supplier Excel file", type=["xlsx"
 if uploaded_file:
     if st.button('Solve Optimisation'):
         files = {"file": uploaded_file.getvalue()}
-        response = requests.post("https://gpt-optimization-backend.onrender.com/solve/", files={"file": uploaded_file})
+        response = requests.post("https://gpt-04cr.onrender.com/solve/", 
+    files={'file': uploaded_file.getvalue()}
+)
 
         if response.ok:
             result = response.json()
