@@ -8,9 +8,7 @@ uploaded_file = st.file_uploader("Upload your supplier data file (CSV)", type=['
 if uploaded_file:
     if st.button('Solve Optimisation'):
         files = {"file": uploaded_file.getvalue()}
-        response = requests.post(
-            "https://your-render-api-link.onrender.com/solve/", files={'file': uploaded_file}
-        )
+         response = requests.post("https://gpt-f9yw.onrender.com/solve/", files={"file": uploaded_file.getvalue()})
         
         if response.ok:
             result = response.json()
