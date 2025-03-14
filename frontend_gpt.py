@@ -1,15 +1,18 @@
-uploaded_file = st.file_uploader("Upload your supplier data file", type=["csv", "xlsx"])
+import streamlit as st
+import requests
+
+st.title("Supplier Selection Optimisation GPT")
+
+uploaded_file = st.file_uploader("Upload your supplier data file (CSV)", type=["csv"])
 
 if uploaded_file:
-    if st.button("Solve Optimisation"):
-        files = {"file": (uploaded_file.name, uploaded_file.getvalue())}
-        response = requests.post(
-            "https://your-api-url.onrender.com/solve/",
-            files=files
-        )
+    if st.button('Solve Optimisation'):
+        files = {"file": uploaded_file.getvalue()}
+        response = requests.post("https://gpt-f9yw.onrender.com/solve/", files={"file": uploaded_file.getvalue()})
+
         if response.ok:
             result = response.json()
-            st.success(f"Optimal supplier: {result['optimal_supplier']}")
-            st.info(result["message"])
+            st.success("Optimisation Result:")
+            st.write(result)
         else:
-            st.error(f"Backend error: {response.status_code}")
+            st.error("Backend service error practically.")
