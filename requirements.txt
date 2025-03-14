@@ -4,3 +4,5 @@ pandas
 gurobipy
 openpyxl
 python-multipart
+streamlit
+requests
