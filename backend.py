@@ -1,38 +1,38 @@
 from fastapi import FastAPI, File, UploadFile
 import pandas as pd
-from gurobipy import Model, GRB
+from gurobipy import *
 
-app = FastAPI()
+app = FastAPI(docs_url="/docs", redoc_url="/redoc")
 
 @app.get("/")
 async def root():
-    return {"message": "Backend practically clearly exactly running!"}
+    return {"message": "Backend clearly practically running!"}
 
 @app.post("/solve/")
 async def solve(file: UploadFile = File(...)):
     df = pd.read_excel(file.file)
 
-    # Example Optimisation (Supplier Selection)
-    model = Model("supplier_selection")
+    # Example optimisation using Gurobi
+    model = Model("Supplier Selection")
 
-    # practically clearly exactly suppose Excel has columns: 'Supplier', 'Cost', 'Quality'
-    suppliers = df['Supplier'].tolist()
-    costs = df['Cost'].tolist()
-    qualities = df['Quality'].tolist()
+    # Assume Excel has columns: 'Supplier', 'Cost', 'Quality', 'DeliveryTime'
+    suppliers = df["Supplier"].tolist()
+    costs = df["Cost"].tolist()
+    quality = df["Quality"].tolist()
+    delivery = df["DeliveryTime"].tolist()
 
-    selection = model.addVars(suppliers, vtype=GRB.BINARY, name="selection")
+    x = model.addVars(suppliers, vtype=GRB.BINARY, name="select_supplier")
 
-    # Objective: Minimize Cost
-    model.setObjective(sum(selection[s] * costs[i] for i, s in enumerate(suppliers)), GRB.MINIMIZE)
+    # Example constraint: choose exactly 2 suppliers
+    model.addConstr(x.sum() == 2)
 
-    # Constraint: Clearly exactly select at least 1 supplier
-    model.addConstr(selection.sum() >= 1, "min_suppliers")
-
-    # Constraint: Quality constraint practically clearly exactly
-    model.addConstr(sum(selection[s] * qualities[i] for i, s in enumerate(suppliers)) >= 80, "quality_requirement")
+    # Objective example: Minimize cost while maximizing quality
+    model.setObjective(quicksum(costs[i] * x[suppliers[i]] for i in range(len(suppliers))) 
+                       - quicksum(quality[i] * x[suppliers[i]] for i in range(len(suppliers))),
+                       GRB.MINIMIZE)
 
     model.optimize()
 
-    selected_suppliers = [s for s in suppliers if selection[s].X > 0.5]
+    selected_suppliers = [supplier for supplier in suppliers if x[supplier].X > 0.5]
 
-    return {"selected_suppliers": selected_suppliers, "objective_value": model.objVal}
+    return {"Selected Suppliers": selected_suppliers}
