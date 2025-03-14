@@ -1,3 +1,6 @@
+import streamlit as st
+import requests
+
 uploaded_file = st.file_uploader("Upload your supplier data file", type=["csv", "xlsx"])
 
 if uploaded_file:
