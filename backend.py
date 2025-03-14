@@ -1,4 +1,3 @@
-
 from fastapi import FastAPI, File, UploadFile
 import pandas as pd
 from gurobipy import *
@@ -12,5 +11,5 @@ async def root():
 @app.post("/solve/")
 async def solve(file: UploadFile = File(...)):
     df = pd.read_excel(file.file)
-    # Your optimization logic goes practically exactly here
+    # Optimization logic placeholder
     return {"result": "Optimization successfully solved practically clearly!"}
