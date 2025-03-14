@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List
 
@@ -8,7 +8,7 @@ class Supplier(BaseModel):
     Supplier: str
     Cost: float
     Quality: float
-    DeliveryTime: int
+    DeliveryTime: float
 
 class SupplierRequest(BaseModel):
     suppliers: List[Supplier]
@@ -16,10 +16,29 @@ class SupplierRequest(BaseModel):
 
 @app.post("/solve-json/")
 def solve_supplier(request: SupplierRequest):
-    if request.criteria == "minimum cost":
-        optimal = min(request.suppliers, key=lambda x: x.Cost)
-        return {
-            "optimal_supplier": optimal.Supplier,
-            "message": f"{optimal.Supplier} selected based on minimum cost (${optimal.Cost})."
-        }
-    return {"message": "Unsupported criteria."}
+    criteria = request.criteria
+    supplier_list = request.suppliers
+
+    if criteria not in ["Cost", "Quality", "DeliveryTime"]:
+        raise HTTPException(status_code=400, detail=f"Unsupported criteria: {criteria}")
+
+    if criteria == "Cost":
+        optimal = min(supplier_list, key=lambda x: x.Cost)
+        reason = f"lowest cost ({optimal.Cost})"
+
+    elif criteria == "Quality":
+        optimal = max(supplier_list, key=lambda x: x.Quality)
+        reason = f"highest quality ({optimal.Quality})"
+
+    elif criteria == "DeliveryTime":
+        optimal = min(supplier_list, key=lambda x: x.DeliveryTime)
+        reason = f"shortest delivery time ({optimal.DeliveryTime} days)"
+
+    return {
+        "optimal_supplier": optimal.Supplier,
+        "message": f"{optimal.Supplier} selected due to {reason}."
+    }
+
+@app.get("/")
+def root():
+    return {"message": "Supplier Optimisation API running!"}
