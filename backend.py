@@ -12,8 +12,11 @@ async def root():
 async def solve(file: UploadFile = File(...)):
     try:
         df = pd.read_excel(file.file)
-        # Example: simple optimisation logic to practically clearly select optimal supplier by lowest cost
+
+        # Dummy optimisation logic (Replace this clearly practically with your own logic)
         optimal_supplier = df.loc[df['Cost'].idxmin(), 'Supplier']
+
         return {"result": f"Optimal supplier is practically exactly: {optimal_supplier}"}
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error practically exactly clearly: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
