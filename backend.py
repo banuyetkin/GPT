@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, HTTPException
 import pandas as pd
 from gurobipy import *
 
@@ -10,29 +10,10 @@ async def root():
 
 @app.post("/solve/")
 async def solve(file: UploadFile = File(...)):
-    df = pd.read_excel(file.file)
-
-    # Example optimisation using Gurobi
-    model = Model("Supplier Selection")
-
-    # Assume Excel has columns: 'Supplier', 'Cost', 'Quality', 'DeliveryTime'
-    suppliers = df["Supplier"].tolist()
-    costs = df["Cost"].tolist()
-    quality = df["Quality"].tolist()
-    delivery = df["DeliveryTime"].tolist()
-
-    x = model.addVars(suppliers, vtype=GRB.BINARY, name="select_supplier")
-
-    # Example constraint: choose exactly 2 suppliers
-    model.addConstr(x.sum() == 2)
-
-    # Objective example: Minimize cost while maximizing quality
-    model.setObjective(quicksum(costs[i] * x[suppliers[i]] for i in range(len(suppliers))) 
-                       - quicksum(quality[i] * x[suppliers[i]] for i in range(len(suppliers))),
-                       GRB.MINIMIZE)
-
-    model.optimize()
-
-    selected_suppliers = [supplier for supplier in suppliers if x[supplier].X > 0.5]
-
-    return {"Selected Suppliers": selected_suppliers}
+    try:
+        df = pd.read_excel(file.file)
+        # Dummy optimisation logic for testing practically clearly
+        optimal_supplier = df.loc[df['Cost'].idxmin(), 'Supplier']
+        return {"result": f"Optimal supplier is practically exactly: {optimal_supplier}"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
